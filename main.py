@@ -2,6 +2,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 
 def main():
@@ -13,14 +14,16 @@ def main():
     parser = argparse.ArgumentParser(description="Chatbot")
     parser.add_argument("user_prompt", type=str, help="User prompt")
     args = parser.parse_args()
-
     content = args.user_prompt
+
+    messages = [types.Content(role="user", parts=[types.Part(text=content)])]
+
     print(f"User prompt: {content}")
 
     client = genai.Client(api_key=api_key)
     res = client.models.generate_content(
         model = "gemini-2.5-flash", 
-        contents = content
+        contents = messages
     )
     if not res.usage_metadata:
         raise RuntimeError("a problem occurred in the response")

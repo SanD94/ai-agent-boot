@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     try:
@@ -23,4 +24,21 @@ def write_file(working_directory, file_path, content):
         return f"Error writing the file: {e}"
 
 
-
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Creates a new file or overwrites an existing file with the specified content.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path where the file should be saved, including the filename and extension (e.g., 'scripts/data_processor.py').",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="The full text content to be written into the file. For code files, this should include all necessary imports and logic.",
+            )
+        },
+        required=["file_path", "content"]
+    ),
+)

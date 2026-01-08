@@ -1,5 +1,6 @@
 from config import MAX_CHARS
 import os
+from google.genai import types
 
 # assume file_path is a relative path to working directory
 def get_file_content(working_directory, file_path):
@@ -21,6 +22,20 @@ def get_file_content(working_directory, file_path):
     except Exception as e:
         return f"Error reading the file: {e}"
 
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Retrieves the raw text content from a specified file on the local filesystem.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The relative path to the file, including the extension (e.g., 'data/report.txt').",
+            ),
+        },
+        required=["file_path"]
+    ),
+)
 
 
 

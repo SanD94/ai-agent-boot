@@ -1,3 +1,4 @@
+import argparse
 import os
 from dotenv import load_dotenv
 from google import genai
@@ -9,7 +10,11 @@ def main():
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY not found")
 
-    content = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
+    parser = argparse.ArgumentParser(description="Chatbot")
+    parser.add_argument("user_prompt", type=str, help="User prompt")
+    args = parser.parse_args()
+
+    content = args.user_prompt
     print(f"User prompt: {content}")
 
     client = genai.Client(api_key=api_key)

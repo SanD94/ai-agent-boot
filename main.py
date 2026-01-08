@@ -13,12 +13,14 @@ def main():
 
     parser = argparse.ArgumentParser(description="Chatbot")
     parser.add_argument("user_prompt", type=str, help="User prompt")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
     content = args.user_prompt
 
     messages = [types.Content(role="user", parts=[types.Part(text=content)])]
 
-    print(f"User prompt: {content}")
+    if args.verbose:
+        print(f"User prompt: {content}")
 
     client = genai.Client(api_key=api_key)
     res = client.models.generate_content(
@@ -31,8 +33,9 @@ def main():
     prompt_token_count = res.usage_metadata.prompt_token_count
     response_token_count = res.usage_metadata.candidates_token_count
 
-    print(f"Prompt tokens: {prompt_token_count}")
-    print(f"Response tokens: {response_token_count}")
+    if args.verbose:
+        print(f"Prompt tokens: {prompt_token_count}")
+        print(f"Response tokens: {response_token_count}")
     print("Response :")
     print(res.text)
 

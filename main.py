@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from prompts import system_prompt
-from tools import available_functions
+from tools import available_functions, call_function
 
 
 def main():
@@ -18,10 +18,11 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
     content = args.user_prompt
+    verbose = args.verbose
 
     messages = [types.Content(role="user", parts=[types.Part(text=content)])]
 
-    if args.verbose:
+    if verbose:
         print(f"User prompt: {content}")
 
     client = genai.Client(api_key=api_key)
@@ -39,14 +40,26 @@ def main():
     prompt_token_count = res.usage_metadata.prompt_token_count
     response_token_count = res.usage_metadata.candidates_token_count
 
-    if args.verbose:
+    if verbose:
         print(f"Prompt tokens: {prompt_token_count}")
         print(f"Response tokens: {response_token_count}")
     
+    f_res_list = []
     if res.function_calls:
         print("Function Calls :")
         for function_call in res.function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call, verbose)
+            if (
+                not function_call_result
+                or not function_call_result.parts[0].function_response
+                or not function_call_result.parts[0].function_response.response
+            ):
+                raise RuntimeError(f"Empty function response for {function_call.name}")
+
+            if verbose:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
+            f_res_list.append(function_call_result.parts[0])
+
     print("Response :")
     print(res.text)
 
